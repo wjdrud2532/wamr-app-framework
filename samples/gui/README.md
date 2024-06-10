@@ -77,6 +77,20 @@ lv_drivers/display의 monitor.c 에서
 ```
 
 
+/gui/wasm-runtime-wgl/linux-build/ 의 CMakeList.txt의
+마지막 라인 target_link_libraries를 수정
+```
+#include </usr/local/include/SDL2/SDL.h>
+set(SDL2_PATH "/usr/local/include/SDL2")
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+# target_link_libraries(your_target_name ${SDL2_LIBRARIES})
+
+target_link_libraries (wasm_runtime_wgl vmlib -lm -ldl -lpthread ${SDL2_LIBRARIES})
+# target_link_libraries(wasm_runtime_wgl PRIVATE SDL2 )
+
+```
+
 ./build.sh 실행
 
 
