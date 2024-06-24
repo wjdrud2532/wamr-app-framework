@@ -25,6 +25,7 @@ It includes a few parts as below:
 ## Getting started
 - Just try this sample: [simple](./samples/simple/README.md)
 - GUI sample start : [GUI_sample](./samples/gui/README.md)
+- Littlevgl sample start : [littlevgl_sample](./samples/littlevgl/README.md)
 
 License
 =======
