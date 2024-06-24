@@ -50,8 +50,8 @@ git clone https://github.com/bytecodealliance/wamr-app-framework.git
 wget https://releases.linaro.org/components/toolchain/binaries/4.9-2016.02/aarch64-linux-gnu/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu.tar.xz
 tar -xf gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu.tar.xz -C /home
 
-export CC="/home//home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc"
-export CXX="/home//home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++"
+export CC="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc"
+export CXX="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++"
 export ARM_A7_COMPILER_DIR="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin"
 export ARM_A7_SDKTARGETSYSROOT="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc"
 
