@@ -34,28 +34,85 @@ Test on Linux
 
 Install required SDK and libraries
 --------------
-- 32 bit SDL(simple directmedia layer) (Note: only necessary when `WAMR_BUILD_TARGET` is set to `X86_32` when building WAMR runtime)
-Use apt-get:
-  ```bash
-  sudo apt-get install libsdl2-dev:i386
-  ```
-Or download source from www.libsdl.org:
-  ```bash
-  ./configure C_FLAGS=-m32 CXX_FLAGS=-m32 LD_FLAGS=-m32
-  make
-  sudo make install
-  ```
-- 64 bit SDL(simple directmedia layer) (Note: only necessary when `WAMR_BUILD_TARGET` is set to `X86_64` when building WAMR runtime)
-Use apt-get:
-  ```bash
-  sudo apt-get install libsdl2-dev
-  ```
-Or download source from www.libsdl.org:
-  ```bash
-  ./configure
-  make
-  sudo make install
-  ```
+
+**build for aarch64**
+
+```
+sudo apt-get install build-essential git make \
+pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev \
+libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
+
+git clone https://github.com/bytecodealliance/wamr-app-framework.git 
+
+wget https://releases.linaro.org/components/toolchain/binaries/4.9-2016.02/aarch64-linux-gnu/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu.tar.xz
+tar -xf gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu.tar.xz -C /home
+
+export CC="/home//home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc"
+export CXX="/home//home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++"
+export ARM_A7_COMPILER_DIR="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin"
+export ARM_A7_SDKTARGETSYSROOT="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc"
+
+sudo apt-get install libsdl2-dev
+```
+**remember SDL2 PATH**
+
+RUN wamr-app-framework/deps  ./download.sh
+
+modify
+-> lv_drivers/indev
+	mouse.h
+	mousewheel.h
+	keyboard.h
+
+-> lv_drivers/display
+	monutor.c
+
+**remove**
+```
+ifndef MONITOR_SDL_INCLUDE_PATH
+  define MONITOR_SDL_INCLUDE_PATH <SDL2/SDL.h>
+endif
+include MONITOR_SDL_INCLUDE_PATH
+```
+**add**
+```
+#include <SDL PATH>
+ex) #include </usr/local/include/SDL2/SDL.h>
+```
+
+**set SDL2 target link**
+
+target = /gui/wasm-runtime-wgl/linux-build/CMakeList.txt
+
+**remove**
+```
+target_link_libraries (wasm_runtime_wgl vmlib -lm -ldl -lpthread -SDL2)
+```
+**add**
+```
+include_directories(SDL include )
+set(SDL2_PATH "SDL PATH")
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+target_link_libraries (wasm_runtime_wgl vmlib -lm -ldl -lpthread ${SDL2_LIBRARIES})
+
+ex)
+include_directories(/mnt/d/wamr/SDL/include/)
+set(SDL2_PATH "/usr/local/include/SDL2")
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+target_link_libraries (wasm_runtime_wgl vmlib -lm -ldl -lpthread ${SDL2_LIBRARIES})
+```
+
+**must compiler set 
+linaro 2016**
+
+wamr-app-framework/samples/littlevgl/wamr_config_littlevgl.cmake
+
+you need to set WAMR_BUILD_TARGET=AARCH64
 
 Build and Run
 --------------
@@ -64,6 +121,18 @@ Build and Run
   ```bash
   ./build.sh
   ```
+
+after build, check file
+
+```
+cd wamr-app-framework\wamr-sdk\out\gui\runtime-sdk\lib
+mkdir libvmlib
+cd libvmlib
+ar x ../libvmlib.a
+file *.o
+```
+
+
     All binaries are in "out", which contains "host_tool", "vgl_native_ui_app", "ui_app.wasm" "ui_app_no_wasi.wasm "and "vgl_wasm_runtime".
 - Run the native Linux build of the lvgl sample (no wasm)
   ```bash
@@ -84,6 +153,12 @@ Build and Run
   ./host_tool -q
   ./host_tool -u ui_no_wasi
   ```
+
+-- 생성된 host_tool 사용 방법
+
+arm 기기에서 ./wasm_runtime_wgl -s 실행 후 
+host 명령어 실행 (ip주소는 arm기기의 주소로 설정)
+cd /mnt/d/wamr/wamr-app-framework/samples/littlevgl/out && ./host_tool -i ui_wasi -f ui_app_wasi.wasm -S 192.168.20.150 -P 8888
 
 Test on Zephyr
 ================================
