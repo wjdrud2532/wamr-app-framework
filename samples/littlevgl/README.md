@@ -38,7 +38,8 @@ Install required SDK and libraries
 **build for aarch64**
 
 ```
-sudo apt-get install build-essential git make pkg-config cmake libasound2-dev libpulse-dev libjack-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev
+sudo apt-get update
+sudo apt-get install build-essential git make pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libsdl2-dev 
 
 git clone https://github.com/bytecodealliance/wamr-app-framework.git 
 
@@ -50,7 +51,6 @@ export CXX="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-li
 export ARM_A7_COMPILER_DIR="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/bin"
 export ARM_A7_SDKTARGETSYSROOT="/home/gcc-linaro-4.9-2016.02-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc"
 
-sudo apt-get install libsdl2-dev
 ```
 **remember SDL2 PATH**
 
