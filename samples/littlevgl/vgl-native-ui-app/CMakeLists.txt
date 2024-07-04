@@ -133,5 +133,19 @@ include_directories(
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/../lv_config
 )
+# 만약 target이 aatch64라면 아래의 코드 실행
+include(../wamr_config_littlevgl.cmake)
+if(WAMR_BUILD_TARGET STREQUAL "AARCH64")
+  message(STATUS " Enable Cross Compiler for AATCH64 ")
+  set(CMAKE_C_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
+  set(CMAKE_CXX_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
+  set(ARM_A7_COMPILER_DIR /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin)
+  set(ARM_A7_SDKTARGETSYSROOT /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc)
+endif()
+#if문 종료 
+
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
 add_executable(vgl_native_ui_app ${SOURCES} )
-target_link_libraries( vgl_native_ui_app -lSDL2)
+target_link_libraries( vgl_native_ui_app ${SDL2_LIBRARIES})
