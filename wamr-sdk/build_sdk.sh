@@ -209,7 +209,7 @@ else
 fi
 [ $? -eq 0 ] || exit $?
 
-make
+make -j$(nproc)
 if (( $? == 0 )); then
     echo -e "\033[32mSuccessfully built app-sdk under ${curr_profile_dir}/app-sdk\033[0m"
 else
@@ -232,7 +232,7 @@ cmake .. $CM_DEXTRA_SDK_INCLUDE_PATH \
        -DCONFIG_PATH=${wamr_config_cmake_file} \
        $CM_TOOLCHAIN $CM_BUILD_TYPE
 [ $? -eq 0 ] || exit $?
-make
+make -j$(nproc)
 
 if (( $? == 0 )); then
     echo -e "\033[32mSuccessfully built runtime library under ${curr_profile_dir}/runtime-sdk/lib\033[0m"
