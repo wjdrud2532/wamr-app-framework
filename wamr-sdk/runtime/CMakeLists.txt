@@ -9,10 +9,15 @@ set (CMAKE_BUILD_TYPE       Release)
 
 #############################################################
 #############################################################
-set(CMAKE_C_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
-set(CMAKE_CXX_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
-set(ARM_A7_COMPILER_DIR /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin)
-set(ARM_A7_SDKTARGETSYSROOT /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc)
+
+include("../../samples/littlevgl/wamr_config_littlevgl.cmake")
+
+if(WAMR_BUILD_TARGET STREQUAL "AARCH64")
+    set(CMAKE_C_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
+    set(CMAKE_CXX_COMPILER /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
+    set(ARM_A7_COMPILER_DIR /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/bin)
+    set(ARM_A7_SDKTARGETSYSROOT /home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc)
+endif()
 
 MESSAGE(STATUS " **************** C_COMPILER: ${CMAKE_C_COMPILER}")
 MESSAGE(STATUS " **************** CXX_COMPILER: ${CMAKE_CXX_COMPILER}")

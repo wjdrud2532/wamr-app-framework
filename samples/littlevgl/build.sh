@@ -12,6 +12,9 @@ OUT_DIR=${PWD}/out
 BUILD_DIR=${PWD}/build
 LV_CFG_PATH=${PROJECT_DIR}/lv_config
 
+find ${WAMR_APP_FRAMEWORK_DIR} -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+
+
 if [ -z $KW_BUILD ] || [ -z $KW_OUT_FILE ];then
     echo "Local Build Env"
     cmakewrap="cmake"
@@ -28,7 +31,24 @@ fi
 
 echo "#####################clone dependent projects"
 cd ${WAMR_APP_FRAMEWORK_DIR}/deps
-./download.sh
+if [ ! -d "wasm-micro-runtime" ] && [ "$WAMR" != "0" ]; then
+        echo "git pull wasm-micro-runtime..."
+        git clone https://github.com/bytecodealliance/wasm-micro-runtime.git
+        [ $? -eq 0 ] || exit $?
+fi
+if [ ! -d "lvgl" ] && [ "$LVGL" != "0" ]; then
+        echo "git pull lvgl..."
+        git clone https://github.com/lvgl/lvgl.git --branch v6.0.1
+        [ $? -eq 0 ] || exit $?
+
+        ../app-framework/wgl/app/prepare_headers.sh
+fi
+if [ ! -d "lv_drivers" ] && [ "$LV_DRIVERS" != "0" ]; then
+        echo "git pull lv_drivers..."
+        git clone https://github.com/lvgl/lv_drivers.git --branch v6.0.1
+        [ $? -eq 0 ] || exit $?
+fi
+# ./download.sh
 
 rm -rf ${OUT_DIR}
 mkdir ${OUT_DIR}
@@ -43,13 +63,6 @@ if [ ! -d "lvgl" ]; then
         fi
 fi
 
-echo "##################### 0. build wamr-sdk littlevgl start#####################"
-cd ${WAMR_APP_FRAMEWORK_DIR}/wamr-sdk
-./build_sdk.sh -n littlevgl -x ${PROJECT_DIR}/wamr_config_littlevgl.cmake -e ${LV_CFG_PATH} -c
-[ $? -eq 0 ] || exit $?
-echo "#####################build wamr-sdk littlevgl success"
-
-
 
 # wamr_config_littlevgl.cmake 파일 경로 설정
 config_file="${PWD}/../wamr_config_littlevgl.cmake"
@@ -60,18 +73,16 @@ jit_value=$(grep 'WAMR_BUILD_JIT' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\
 
 if [ "$jit_value" -eq 1 ]; then
 
-    echo "##################### 0.5. build LLVM start#####################"
+    echo "##################### 0. build LLVM start#####################"
     echo "JIT is enbled, need llvm build!"
     echo " WAMR_BUILD_TARGET:$target_value";
-
-    # rm -rf ${WAMR_DIR}/core/deps/llvm/build
 
     #target 확인 
     if [ "$target_value" = "X86_64" ]; then
 
         echo "##################### X86_64 target is selected, LLVM build start #####################"
-        cp ${PROJECT_DIR}/llvm_build_script_aarch64/build_llvm_x86_64.py ${WAMR_DIR}/build-scripts/build_llvm_x86_64.py
-        cp ${PROJECT_DIR}/llvm_build_script_aarch64/build_llvm_x86_64.sh ${WAMR_DIR}/build-scripts/build_llvm_x86_64.sh
+        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_x86_64.py ${WAMR_DIR}/build-scripts/build_llvm_x86_64.py
+        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_x86_64.sh ${WAMR_DIR}/build-scripts/build_llvm_x86_64.sh
         cd ${WAMR_DIR}/wamr-compiler
         ./build_llvm_x86_64.sh
     
@@ -90,8 +101,8 @@ if [ "$jit_value" -eq 1 ]; then
             echo " ##################### linaro-14 download complete"
         fi
 
-        cp ${PROJECT_DIR}/llvm_build_script_aarch64/build_llvm_aarch64.py ${WAMR_DIR}/build-scripts/build_llvm_aarch64.py
-        cp ${PROJECT_DIR}/llvm_build_script_aarch64/build_llvm_aarch64.sh ${WAMR_DIR}/build-scripts/build_llvm_aarch64.sh
+        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_aarch64.py ${WAMR_DIR}/build-scripts/build_llvm_aarch64.py
+        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_aarch64.sh ${WAMR_DIR}/build-scripts/build_llvm_aarch64.sh
         cd ${WAMR_DIR}/wamr-compiler
         ./build_llvm_aarch64.sh
 
@@ -101,6 +112,14 @@ if [ "$jit_value" -eq 1 ]; then
 
     echo ""##################### LLVM build complete "#####################"
 fi
+
+
+echo "##################### 0. build wamr-sdk littlevgl start#####################"
+cd ${WAMR_APP_FRAMEWORK_DIR}/wamr-sdk
+./build_sdk.sh -n littlevgl -x ${PROJECT_DIR}/wamr_config_littlevgl.cmake -e ${LV_CFG_PATH} -c
+[ $? -eq 0 ] || exit $?
+echo "#####################build wamr-sdk littlevgl success"
+
 
 echo -e "\n\n"
 echo "##################### 1. build native-ui-app start#####################"

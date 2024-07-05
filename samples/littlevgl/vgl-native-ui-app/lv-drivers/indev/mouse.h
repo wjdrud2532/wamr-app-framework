@@ -22,11 +22,13 @@ extern "C" {
 #include <stdbool.h>
 #include "lvgl/lv_hal/lv_hal_indev.h"
 
-#ifndef MONITOR_SDL_INCLUDE_PATH
-#define MONITOR_SDL_INCLUDE_PATH <SDL2/SDL.h>
-#endif
+// #ifndef MONITOR_SDL_INCLUDE_PATH
+// #define MONITOR_SDL_INCLUDE_PATH <SDL2/SDL.h>
+// #endif
 
-#include MONITOR_SDL_INCLUDE_PATH
+// #include MONITOR_SDL_INCLUDE_PATH
+#include </usr/local/include/SDL2/SDL.h>
+
 
 /*********************
  *      DEFINES

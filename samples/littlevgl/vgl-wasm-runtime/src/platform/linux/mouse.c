@@ -7,7 +7,9 @@
  *      INCLUDES
  *********************/
 #include "display_indev.h"
-#include "SDL2/SDL.h"
+// #include "SDL2/SDL.h"
+#include </usr/local/include/SDL2/SDL.h>
+
 #if USE_MOUSE != 0
 
 /*********************
