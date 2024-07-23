@@ -7,8 +7,7 @@
 #include <stdbool.h>
 #include "display_indev.h"
 #include "sys/time.h"
-// #include "SDL2/SDL.h"
-#include </usr/local/include/SDL2/SDL.h>
+#include "SDL2/SDL.h"
 #define MONITOR_HOR_RES 320
 #define MONITOR_VER_RES 240
 #ifndef MONITOR_ZOOM

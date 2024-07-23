@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "display_indev.h"
-// #include "SDL2/SDL.h"
-#include </usr/local/include/SDL2/SDL.h>
-
+#include "SDL2/SDL.h"
 #include "sys/time.h"
 #include "wasm_export.h"
 #include "app_manager_export.h"
