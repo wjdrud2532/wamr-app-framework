@@ -76,27 +76,29 @@ architecture=$(uname -m)
 if [ "$architecture" = "aarch64" ]; then
     echo "aarch64 architecture detected. Performing aarch64-specific tasks..."
     
-    #install cmake 3.30.0 (because need cmake 3.29 or higher)
-    wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
-    tar -zxvf cmake-3.30.0.tar.gz
-    cd cmake-3.30.0
-    ./bootstrap
-    make -j$(nproc)
-    sudo make install
-
-    #install wasi-sdk
-    sudo wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-23/wasi-sdk-23.0-arm64-linux.tar.gz
-    sudo tar -xf wasi-sdk-23.0-arm64-linux.tar.gz -C /opt/
-    sudo mv /opt/wasi-sdk-23.0 /opt/wasi-sdk
-    
     #install packages
     sudo apt update && \
     sudo add-apt-repository -y main universe restricted multiverse && \
-    sudo apt update && sudo apt install -y build-essential libssl-dev git make pkg-config \
-    cmake ninja-build python3-pip git vim 
+    sudo apt update && sudo apt install -y build-essential libssl-dev make pkg-config \
+     ninja-build python3-pip vim 
 
+    if ! command -v cmake &> /dev/null; then
+        #install cmake 3.30.0 (because need cmake 3.29 or higher)
+        wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
+        tar -zxvf cmake-3.30.0.tar.gz
+        cd cmake-3.30.0
+        ./bootstrap
+        make -j$(nproc)
+        sudo make install
+    fi
+
+    if [ ! -d "/opt/wasi-sdk" ]; then
+        #install wasi-sdk
+        sudo wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-23/wasi-sdk-23.0-arm64-linux.tar.gz
+        sudo tar -xf wasi-sdk-23.0-arm64-linux.tar.gz -C /opt/
+        sudo mv /opt/wasi-sdk-23.0-arm64-linux /opt/wasi-sdk
+    fi
     
-
 elif [ "$architecture" = "x86_64" ]; then
     echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
 
