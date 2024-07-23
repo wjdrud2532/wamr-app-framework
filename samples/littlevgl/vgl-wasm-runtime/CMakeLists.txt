@@ -11,7 +11,6 @@ set (WAMR_BUILD_PLATFORM "linux")
 set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
-
 ################  wamr runtime settings  ################
 
 set (WAMR_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../deps/wasm-micro-runtime)
@@ -29,24 +28,8 @@ include_directories(
 ###############  application related  ###############
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
 
-add_executable (vgl_wasm_runtime src/platform/${WAMR_BUILD_PLATFORM}/main.c
-                src/platform/${WAMR_BUILD_PLATFORM}/iwasm_main.c
-                src/platform/${WAMR_BUILD_PLATFORM}/display_indev.c
-                src/platform/${WAMR_BUILD_PLATFORM}/mouse.c)
-
-# find SDL2
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-
+############### set JIT settings  ###############
 include("../wamr_config_littlevgl.cmake")
-
-if(WAMR_BUILD_TARGET STREQUAL "AARCH64")
-    set(CMAKE_C_COMPILER /home/gcc-linaro-11.3.1-2022.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
-    set(CMAKE_CXX_COMPILER /home/gcc-linaro-11.3.1-2022.06-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
-    set(ARM_A7_COMPILER_DIR /home/gcc-linaro-11.3.1-2022.06-x86_64_aarch64-linux-gnu/bin)
-    set(ARM_A7_SDKTARGETSYSROOT /home/gcc-linaro-11.3.1-2022.06-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc)
-endif()
 
 if(WAMR_BUILD_JIT EQUAL 1)
     set(LLVM_DIR "${WAMR_ROOT_DIR}/core/deps/llvm/build/lib/cmake/llvm")
@@ -77,24 +60,17 @@ if(WAMR_BUILD_JIT EQUAL 1)
     else()
         message(STATUS "LLVM Not Found")
     endif()
+
+    MESSAGE(STATUS " **************** C_COMPILER: ${CMAKE_C_COMPILER}")
+    MESSAGE(STATUS " **************** CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+    MESSAGE(STATUS " **************** ARM_A7_COMPILER_DIR is set to $ENV{ARM_A7_COMPILER_DIR}")
+    MESSAGE(STATUS " **************** ARM_A7_SDKTARGETSYSROOT is set to $ENV{ARM_A7_SDKTARGETSYSROOT}")
 endif()
 
+add_executable (vgl_wasm_runtime src/platform/${WAMR_BUILD_PLATFORM}/main.c
+                src/platform/${WAMR_BUILD_PLATFORM}/iwasm_main.c
+                src/platform/${WAMR_BUILD_PLATFORM}/display_indev.c
+                src/platform/${WAMR_BUILD_PLATFORM}/mouse.c)
 
-MESSAGE(STATUS " **************** C_COMPILER: ${CMAKE_C_COMPILER}")
-    MESSAGE(STATUS " **************** CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
-    message(STATUS "ARM_A7_COMPILER_DIR is set to $ENV{ARM_A7_COMPILER_DIR}")
-    message(STATUS "ARM_A7_SDKTARGETSYSROOT is set to $ENV{ARM_A7_SDKTARGETSYSROOT}")
-
-target_link_libraries (vgl_wasm_runtime 
-    
-    vmlib 
-    
-    -lm 
-    -ldl 
-    -lpthread 
-
-    ${LLVM_LINK_OPTION}
-
-    ${SDL2_LIBRARIES}
-)
+target_link_libraries (vgl_wasm_runtime vmlib -lm -ldl -lpthread -lSDL2 ${LLVM_LINK_OPTION})
 
