@@ -12,9 +12,6 @@ OUT_DIR=${PWD}/out
 BUILD_DIR=${PWD}/build
 LV_CFG_PATH=${PROJECT_DIR}/lv_config
 
-find ${WAMR_APP_FRAMEWORK_DIR} -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
-
-
 if [ -z $KW_BUILD ] || [ -z $KW_OUT_FILE ];then
     echo "Local Build Env"
     cmakewrap="cmake"
@@ -29,11 +26,15 @@ if [ ! -d $BUILD_DIR ]; then
     mkdir ${BUILD_DIR}
 fi
 
+######################################################################
+# wasm-micro-runtime 다운로드 시작
+######################################################################
+
 echo "#####################clone dependent projects"
 cd ${WAMR_APP_FRAMEWORK_DIR}/deps
 if [ ! -d "wasm-micro-runtime" ] && [ "$WAMR" != "0" ]; then
         echo "git pull wasm-micro-runtime..."
-        git clone https://github.com/bytecodealliance/wasm-micro-runtime.git
+        git clone https://github.com/wjdrud2532/wasm-micro-runtime.git
         [ $? -eq 0 ] || exit $?
 fi
 if [ ! -d "lvgl" ] && [ "$LVGL" != "0" ]; then
@@ -62,64 +63,74 @@ if [ ! -d "lvgl" ]; then
             exit 2
         fi
 fi
+######################################################################
+# wasm-micro-runtime 다운로드 완료
+
+# 아키텍처에 필요한 패키지 다운로드 시작
+######################################################################
+
+sudo apt update
+
+architecture=$(uname -m)
+
+if [ "$architecture" = "aarch64" ]; then
+  echo "aarch64 architecture detected. Performing aarch64-specific tasks..."
+
+  sudo apt update && sudo apt install build-essential git make pkg-config \
+  cmake ninja-build python3-pip git vim 
 
 
-# wamr_config_littlevgl.cmake 파일 경로 설정
+
+elif [ "$architecture" = "x86_64" ]; then
+    echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
+
+    #install packages
+    sudo apt update && sudo apt install -y apt-transport-https apt-utils build-essential \
+     ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
+     ninja-build ocaml ocamlbuild python2.7 python3-pip software-properties-common tree \
+     tzdata unzip valgrind vim wget zip cmake pkg-config \
+     libsdl2-dev --no-install-recommends
+
+    #install wasi-sdk
+    sudo wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz 
+    sudo tar -xf wasi-sdk-16.0-linux.tar.gz -C /opt/
+    sudo mv /opt/wasi-sdk-16.0 /opt/wasi-sdk
+
+
+else
+
+fi
+######################################################################
+# 아키텍처에 필요한 패키지 다운로드 완료
+
+# JIT 실행여부 확인 및 LLVM 빌드 시작
+######################################################################
+
 config_file="${PWD}/../wamr_config_littlevgl.cmake"
-
-# wamr_config_littlevgl.cmake 파일에서 WAMR_BUILD_TARGET 값을 추출합니다.
 target_value=$(grep 'WAMR_BUILD_TARGET' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
 jit_value=$(grep 'WAMR_BUILD_JIT' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
 
 if [ "$jit_value" -eq 1 ]; then
-
-    echo "##################### 0. build LLVM start#####################"
     echo "JIT is enbled, need llvm build!"
+    echo ""##################### LLVM build start! "#####################"
     echo " WAMR_BUILD_TARGET:$target_value";
-
-    #target 확인 
-    if [ "$target_value" = "X86_64" ]; then
-
-        echo "##################### X86_64 target is selected, LLVM build start #####################"
-        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_x86_64.py ${WAMR_DIR}/build-scripts/build_llvm_x86_64.py
-        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_x86_64.sh ${WAMR_DIR}/build-scripts/build_llvm_x86_64.sh
         cd ${WAMR_DIR}/wamr-compiler
-        ./build_llvm_x86_64.sh
-    
-    elif [ "$target_value" = "AARCH64" ]; then
-
-        echo " ##################### AARCH64 target is selected, LLVM build start #####################"
-        file_path="/home/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu.tar.xz"
-    
-        if [ -f "$file_path" ]; then
-            echo " ##################### linaro-14 exists"
-        else
-            echo " ##################### linaro-14 deos not exists, download linaro-14"
-            cd /home
-            wget https://snapshots.linaro.org/gnu-toolchain/14.0-2023.06-1/aarch64-linux-gnu/gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu.tar.xz
-            tar -xvf gcc-linaro-14.0.0-2023.06-x86_64_aarch64-linux-gnu.tar.xz -C /home
-            echo " ##################### linaro-14 download complete"
-        fi
-
-        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_aarch64.py ${WAMR_DIR}/build-scripts/build_llvm_aarch64.py
-        cp ${PROJECT_DIR}/llvm_build_script/build_llvm_aarch64.sh ${WAMR_DIR}/build-scripts/build_llvm_aarch64.sh
-        cd ${WAMR_DIR}/wamr-compiler
-        ./build_llvm_aarch64.sh
-
-    else
-        echo "WIP, not supported target"
-    fi
-
+        ./build_llvm.sh
     echo ""##################### LLVM build complete "#####################"
 fi
 
+######################################################################
+# LLVM 빌드 완료
+
+# wamk-sdk 빌드 시작
+######################################################################
 
 echo "##################### 0. build wamr-sdk littlevgl start#####################"
+
 cd ${WAMR_APP_FRAMEWORK_DIR}/wamr-sdk
 ./build_sdk.sh -n littlevgl -x ${PROJECT_DIR}/wamr_config_littlevgl.cmake -e ${LV_CFG_PATH} -c
 [ $? -eq 0 ] || exit $?
 echo "#####################build wamr-sdk littlevgl success"
-
 
 echo -e "\n\n"
 echo "##################### 1. build native-ui-app start#####################"
