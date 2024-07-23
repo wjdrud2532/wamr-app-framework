@@ -79,7 +79,8 @@ if [ "$architecture" = "aarch64" ]; then
   sudo apt update && sudo apt install build-essential git make pkg-config \
   cmake ninja-build python3-pip git vim 
 
-
+    #wasi -sdk 설치 명령어 추가해야함 
+    # https://github.com/WebAssembly/wasi-sdk/actions/runs/9910478645 
 
 elif [ "$architecture" = "x86_64" ]; then
     echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
@@ -98,7 +99,8 @@ elif [ "$architecture" = "x86_64" ]; then
 
 
 else
-
+    echo "Unknown architecture detected. Exiting..."
+    exit 1
 fi
 ######################################################################
 # 아키텍처에 필요한 패키지 다운로드 완료
