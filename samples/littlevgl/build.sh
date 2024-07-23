@@ -80,7 +80,7 @@ if [ "$architecture" = "aarch64" ]; then
     sudo apt update && \
     sudo add-apt-repository -y main universe restricted multiverse && \
     sudo apt update && sudo apt install -y build-essential libssl-dev make pkg-config \
-     ninja-build python3-pip vim 
+     ninja-build python3-pip vim libsdl2-dev
 
     if ! command -v cmake &> /dev/null; then
         #install cmake 3.30.0 (because need cmake 3.29 or higher)
