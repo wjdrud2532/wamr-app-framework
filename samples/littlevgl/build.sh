@@ -110,9 +110,11 @@ elif [ "$architecture" = "x86_64" ]; then
      libsdl2-dev --no-install-recommends
 
     #install wasi-sdk
-    sudo wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz 
-    sudo tar -xf wasi-sdk-16.0-linux.tar.gz -C /opt/
-    sudo mv /opt/wasi-sdk-16.0 /opt/wasi-sdk
+    if [ ! -d "/opt/wasi-sdk" ]; then
+        sudo wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz 
+        sudo tar -xf wasi-sdk-16.0-linux.tar.gz -C /opt/
+        sudo mv /opt/wasi-sdk-16.0 /opt/wasi-sdk
+    fi
 
 else
     echo "Unknown architecture detected. Exiting..."
