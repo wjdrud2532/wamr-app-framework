@@ -106,7 +106,7 @@ elif [ "$architecture" = "x86_64" ]; then
         sudo apt update && sudo apt-get install -y apt-transport-https apt-utils build-essential \
          ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
          ninja-build ocaml ocamlbuild python2.7 software-properties-common tree tzdata unzip \
-         valgrind vim wget zip --no-install-recommends python3-pip libssl-dev \
+         valgrind vim wget zip --no-install-recommends python3-pip libssl-dev make \
          gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
         export CC="/usr/bin/aarch64-linux-gnu-gcc"
@@ -130,7 +130,7 @@ elif [ "$architecture" = "x86_64" ]; then
         sudo apt update && sudo apt install -y apt-transport-https apt-utils build-essential \
         ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
         ninja-build ocaml ocamlbuild python2.7 python3-pip software-properties-common tree \
-        tzdata unzip valgrind vim wget zip cmake pkg-config \
+        tzdata unzip valgrind vim wget zip cmake pkg-config make \
         libsdl2-dev --no-install-recommends
 
     fi
