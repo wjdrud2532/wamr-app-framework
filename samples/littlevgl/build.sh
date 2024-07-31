@@ -111,7 +111,7 @@ elif [ "$architecture" = "x86_64" ]; then
 
 
     if [ "$target_value" = "AARCH64" ]; then   # x86 환경에서 aarch64를 빌드하는 경우
-        echo "x86에서 aarch64 빌드"
+        echo "x86에서 aarch64 빌드, 패키지 설치"
 
         sudo apt update && sudo apt-get install -y apt-transport-https apt-utils build-essential \
          ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
@@ -134,8 +134,8 @@ elif [ "$architecture" = "x86_64" ]; then
         unset CC
         unset CXX
 
-    else    # x86 환경에서 x86을 빌드하는 경우
-        echo "x86에서 x86 빌드"
+    elif [ "$target_value" = "X86_64" ]; then    # x86 환경에서 x86을 빌드하는 경우
+        echo "x86에서 x86 빌드, 패키지 설치"
 
         sudo apt update && sudo apt install -y apt-transport-https apt-utils build-essential \
         ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
@@ -179,8 +179,8 @@ fi
 ######################################################################
 
 if [ "$architecture" = "x86_64" ]; then
-    if("$target_value" = "AARCH64"); then   # x86 환경에서 aarch64를 빌드하는 경우
-        echo "x86에서 aarch64 빌드"
+    if ["$target_value" = "AARCH64" ]; then   # x86 환경에서 aarch64를 빌드하는 경우
+        echo "x86에서 aarch64 빌드이므로 export 크로스 컴파일러"
         
         export CC="/usr/bin/aarch64-linux-gnu-gcc"
         export CXX="/usr/bin/aarch64-linux-gnu-g++"
