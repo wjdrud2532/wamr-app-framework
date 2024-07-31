@@ -110,20 +110,23 @@ elif [ "$architecture" = "x86_64" ]; then
          
         sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
-        export CC="/usr/bin/aarch64-linux-gnu-gcc"
-        export CXX="/usr/bin/aarch64-linux-gnu-g++"
+        if [ ! -d "/opt/wasi-sdk" ]; then
+            export CC="/usr/bin/aarch64-linux-gnu-gcc"
+            export CXX="/usr/bin/aarch64-linux-gnu-g++"
+            
+            # sdl2 설치
+            wget https://www.libsdl.org/release/SDL2-2.0.18.tar.gz 
+            tar -xvf SDL2-2.0.18.tar.gz
+            cd SDL2-2.0.18/
+            mkdir build; cd build
+            ../configure --host=aarch64-linux-gnu --prefix=/usr/local
+            make -j$(nproc)
+            sudo make install         
 
-        # sdl2 설치
-        wget https://www.libsdl.org/release/SDL2-2.0.18.tar.gz 
-        tar -xvf SDL2-2.0.18.tar.gz
-        cd SDL2-2.0.18/
-        mkdir build; cd build
-        ../configure --host=aarch64-linux-gnu --prefix=/usr/local
-        make -j$(nproc)
-        sudo make install         
-
-        unset CC
-        unset CXX
+            unset CC
+            unset CXX
+        fi
+        
 
     elif [ "$target_value" = "X86_64" ]; then    # x86 환경에서 x86을 빌드하는 경우
         echo "x86에서 x86 빌드, 패키지 설치"

@@ -134,4 +134,21 @@ include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/../lv_config
 )
 add_executable(vgl_native_ui_app ${SOURCES} )
-target_link_libraries( vgl_native_ui_app -lSDL2)
+
+include("../wamr_config_littlevgl.cmake")
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND WAMR_BUILD_TARGET STREQUAL "AARCH64")
+       
+  #크로스 컴파일을 하는 경우 아래와 같이 설정
+  include_directories(/mnt/d/wamr/SDL/include/)
+  set(SDL2_PATH "/usr/local/include/SDL2")
+  find_package(SDL2 REQUIRED)
+  include_directories(${SDL2_INCLUDE_DIRS})
+    
+  target_link_libraries( vgl_native_ui_app ${SDL2_LIBRARIES} )
+    
+else()
+  target_link_libraries( vgl_native_ui_app -lSDL2)
+
+endif()
+

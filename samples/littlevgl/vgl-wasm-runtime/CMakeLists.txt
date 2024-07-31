@@ -72,5 +72,22 @@ add_executable (vgl_wasm_runtime src/platform/${WAMR_BUILD_PLATFORM}/main.c
                 src/platform/${WAMR_BUILD_PLATFORM}/display_indev.c
                 src/platform/${WAMR_BUILD_PLATFORM}/mouse.c)
 
-target_link_libraries (vgl_wasm_runtime vmlib -lm -ldl -lpthread -lSDL2 ${LLVM_LINK_OPTION})
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND WAMR_BUILD_TARGET STREQUAL "AARCH64")
+       
+    #크로스 컴파일을 하는 경우 아래와 같이 설정
+    include_directories(/mnt/d/wamr/SDL/include/)
+    set(SDL2_PATH "/usr/local/include/SDL2")
+    find_package(SDL2 REQUIRED)
+    include_directories(${SDL2_INCLUDE_DIRS})
+        
+    target_link_libraries (vgl_wasm_runtime vmlib -lm -ldl -lpthread 
+    ${SDL2_LIBRARIES} 
+    ${LLVM_LINK_OPTION})
+    
+else()
+    target_link_libraries (vgl_wasm_runtime vmlib -lm -ldl -lpthread -lSDL2 
+    ${LLVM_LINK_OPTION})
+
+endif()
+
 
