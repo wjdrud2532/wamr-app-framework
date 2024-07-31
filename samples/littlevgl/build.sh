@@ -71,7 +71,22 @@ fi
 
 sudo apt update
 
-architecture=$(uname -m)
+if ! command -v cmake &> /dev/null; then
+    #install cmake 3.30.0 (because need cmake 3.29 or higher)
+    wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
+    tar -zxvf cmake-3.30.0.tar.gz
+    cd cmake-3.30.0
+    ./bootstrap
+    make -j$(nproc)
+    sudo make install
+fi
+
+architecture=$(uname -m)    # 현재 아키텍처 확인
+
+# wamr cmake의 옵션 확인
+config_file="${PWD}/../wamr_config_littlevgl.cmake"
+target_value=$(grep 'WAMR_BUILD_TARGET' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
+jit_value=$(grep 'WAMR_BUILD_JIT' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
 
 if [ "$architecture" = "aarch64" ]; then
     echo "aarch64 architecture detected. Performing aarch64-specific tasks..."
@@ -81,16 +96,6 @@ if [ "$architecture" = "aarch64" ]; then
     sudo add-apt-repository -y main universe restricted multiverse && \
     sudo apt update && sudo apt install -y build-essential libssl-dev make pkg-config \
      ninja-build python3-pip vim libsdl2-dev
-
-    if ! command -v cmake &> /dev/null; then
-        #install cmake 3.30.0 (because need cmake 3.29 or higher)
-        wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
-        tar -zxvf cmake-3.30.0.tar.gz
-        cd cmake-3.30.0
-        ./bootstrap
-        make -j$(nproc)
-        sudo make install
-    fi
 
     if [ ! -d "/opt/wasi-sdk" ]; then
         #install wasi-sdk
@@ -102,12 +107,40 @@ if [ "$architecture" = "aarch64" ]; then
 elif [ "$architecture" = "x86_64" ]; then
     echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
 
-    #install packages
-    sudo apt update && sudo apt install -y apt-transport-https apt-utils build-essential \
-     ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
-     ninja-build ocaml ocamlbuild python2.7 python3-pip software-properties-common tree \
-     tzdata unzip valgrind vim wget zip cmake pkg-config \
-     libsdl2-dev --no-install-recommends
+    if("$target_value" = "AARCH64"); then   # x86 환경에서 aarch64를 빌드하는 경우
+        echo "x86에서 aarch64 빌드"
+
+        sudo apt update && sudo apt-get install -y apt-transport-https apt-utils build-essential \
+         ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
+         ninja-build ocaml ocamlbuild python2.7 software-properties-common tree tzdata unzip \
+         valgrind vim wget zip --no-install-recommends python3-pip libssl-dev \
+         gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+        export CC="/usr/bin/aarch64-linux-gnu-gcc"
+        export CXX="/usr/bin/aarch64-linux-gnu-g++"
+
+        # sdl2 설치
+        wget https://www.libsdl.org/release/SDL2-2.0.18.tar.gz 
+        tar -xvf SDL2-2.0.18.tar.gz
+        cd SDL2-2.0.18/
+        mkdir build; cd build
+        ../configure --host=aarch64-linux-gnu --prefix=/usr/local
+        make -j$(nproc)
+        sudo make install         
+
+        unset CC
+        unset CXX
+
+    else    # x86 환경에서 x86을 빌드하는 경우
+        echo "x86에서 x86 빌드"
+
+        sudo apt update && sudo apt install -y apt-transport-https apt-utils build-essential \
+        ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
+        ninja-build ocaml ocamlbuild python2.7 python3-pip software-properties-common tree \
+        tzdata unzip valgrind vim wget zip cmake pkg-config \
+        libsdl2-dev --no-install-recommends
+
+    fi
 
     #install wasi-sdk
     if [ ! -d "/opt/wasi-sdk" ]; then
@@ -126,9 +159,6 @@ fi
 # JIT 실행여부 확인 및 LLVM 빌드 시작
 ######################################################################
 
-config_file="${PWD}/../wamr_config_littlevgl.cmake"
-target_value=$(grep 'WAMR_BUILD_TARGET' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
-jit_value=$(grep 'WAMR_BUILD_JIT' "$config_file" | sed -E 's/.*\s+([^\)]+)\).*/\1/')
 
 if [ "$jit_value" -eq 1 ]; then
     echo "JIT is enbled, need llvm build!"
@@ -144,6 +174,16 @@ fi
 
 # wamk-sdk 빌드 시작
 ######################################################################
+
+if [ "$architecture" = "x86_64" ]; then
+
+    if("$target_value" = "AARCH64"); then   # x86 환경에서 aarch64를 빌드하는 경우
+        echo "x86에서 aarch64 빌드"
+        
+        export CC="/usr/bin/aarch64-linux-gnu-gcc"
+        export CXX="/usr/bin/aarch64-linux-gnu-g++"
+    fi
+fi
 
 echo "##################### 0. build wamr-sdk littlevgl start#####################"
 
