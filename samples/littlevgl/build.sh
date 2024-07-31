@@ -106,8 +106,9 @@ elif [ "$architecture" = "x86_64" ]; then
         sudo apt update && sudo apt-get install -y apt-transport-https apt-utils build-essential \
          ca-certificates curl g++-multilib git gnupg libgcc-9-dev lib32gcc-9-dev lsb-release \
          ninja-build ocaml ocamlbuild python2.7 software-properties-common tree tzdata unzip \
-         valgrind vim wget zip --no-install-recommends python3-pip libssl-dev make \
-         gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+         valgrind vim wget zip python3-pip libssl-dev make
+         
+        sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
         export CC="/usr/bin/aarch64-linux-gnu-gcc"
         export CXX="/usr/bin/aarch64-linux-gnu-g++"
