@@ -105,9 +105,12 @@ if [ "$architecture" = "aarch64" ]; then
     fi
     
 elif [ "$architecture" = "x86_64" ]; then
-    echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
 
-    if("$target_value" = "AARCH64"); then   # x86 환경에서 aarch64를 빌드하는 경우
+    echo "x86_64 architecture detected. Performing x86_64-specific tasks..."
+    echo "WAMR_BUILD_TARGET is set to: $target_value"
+
+
+    if [ "$target_value" = "AARCH64" ]; then   # x86 환경에서 aarch64를 빌드하는 경우
         echo "x86에서 aarch64 빌드"
 
         sudo apt update && sudo apt-get install -y apt-transport-https apt-utils build-essential \
@@ -159,8 +162,8 @@ fi
 # JIT 실행여부 확인 및 LLVM 빌드 시작
 ######################################################################
 
-
-if [ "$jit_value" -eq 1 ]; then
+# echo $jit_value
+if [ "$jit_value" = 1 ]; then
     echo "JIT is enbled, need llvm build!"
     echo ""##################### LLVM build start! "#####################"
     echo " WAMR_BUILD_TARGET:$target_value";
@@ -176,7 +179,6 @@ fi
 ######################################################################
 
 if [ "$architecture" = "x86_64" ]; then
-
     if("$target_value" = "AARCH64"); then   # x86 환경에서 aarch64를 빌드하는 경우
         echo "x86에서 aarch64 빌드"
         
