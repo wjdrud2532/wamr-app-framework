@@ -71,16 +71,6 @@ fi
 
 sudo apt update
 
-if ! command -v cmake &> /dev/null; then
-    #install cmake 3.30.0 (because need cmake 3.29 or higher)
-    wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
-    tar -zxvf cmake-3.30.0.tar.gz
-    cd cmake-3.30.0
-    ./bootstrap
-    make -j$(nproc)
-    sudo make install
-fi
-
 architecture=$(uname -m)    # 현재 아키텍처 확인
 
 # wamr cmake의 옵션 확인
@@ -156,6 +146,18 @@ else
     echo "Unknown architecture detected. Exiting..."
     exit 1
 fi
+
+
+if ! command -v cmake &> /dev/null; then
+    #install cmake 3.30.0 (because need cmake 3.29 or higher)
+    wget https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
+    tar -zxvf cmake-3.30.0.tar.gz
+    cd cmake-3.30.0
+    ./bootstrap
+    make -j$(nproc)
+    sudo make install
+fi
+
 ######################################################################
 # 아키텍처에 필요한 패키지 다운로드 완료
 
@@ -179,7 +181,7 @@ fi
 ######################################################################
 
 if [ "$architecture" = "x86_64" ]; then
-    if ["$target_value" = "AARCH64" ]; then   # x86 환경에서 aarch64를 빌드하는 경우
+    if [ "$target_value" = "AARCH64" ]; then   # x86 환경에서 aarch64를 빌드하는 경우
         echo "x86에서 aarch64 빌드이므로 export 크로스 컴파일러"
         
         export CC="/usr/bin/aarch64-linux-gnu-gcc"
