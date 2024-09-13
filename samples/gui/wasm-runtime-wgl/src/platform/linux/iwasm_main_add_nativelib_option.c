@@ -1,6 +1,5 @@
 
 
-
 #ifndef CONNECTION_UART
 #include <netdb.h>
 #include <netinet/in.h>
@@ -46,19 +45,20 @@ static char *uart_device = "/dev/ttyS2";
 static int baudrate = B115200;
 #endif
 
-
 // this 001 #################################################################
 // this 001 #################################################################
 #include <dlfcn.h>
 
 #if BH_HAS_DLFCN
-struct native_lib {
+struct native_lib
+{
     void *handle;
 
-    uint32 (*get_native_lib)(char **p_module_name,
-                             NativeSymbol **p_native_symbols);
+    uint32 (*get_native_lib)(char **p_module_name, NativeSymbol **p_native_symbols);
     int (*init_native_lib)(void);
     void (*deinit_native_lib)(void);
+
+    uint32 (*get_native_lib2)(char **p_module_name, NativeSymbol **p_native_symbols);
 
     char *module_name;
     NativeSymbol *native_symbols;
@@ -69,7 +69,8 @@ struct native_lib *
 load_native_lib(const char *name)
 {
     struct native_lib *lib = wasm_runtime_malloc(sizeof(*lib));
-    if (lib == NULL) {
+    if (lib == NULL)
+    {
         LOG_WARNING("warning: failed to load native library %s because of "
                     "allocation failure",
                     name);
@@ -77,11 +78,11 @@ load_native_lib(const char *name)
     }
     memset(lib, 0, sizeof(*lib));
 
-        printf("222 dddddddddddd native lib: %s\n", name);
-        
+    printf("222222222222222 native lib: %s\n", name);
+
     /* open the native library */
-    if (!(lib->handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL))
-        && !(lib->handle = dlopen(name, RTLD_LAZY))) {
+    if (!(lib->handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL)) && !(lib->handle = dlopen(name, RTLD_LAZY)))
+    {
         LOG_WARNING("warning: failed to load native library %s. %s", name,
                     dlerror());
         goto fail;
@@ -91,16 +92,25 @@ load_native_lib(const char *name)
     lib->get_native_lib = dlsym(lib->handle, "get_native_lib");
     lib->deinit_native_lib = dlsym(lib->handle, "deinit_native_lib");
 
-    if (!lib->get_native_lib) {
+    lib->get_native_lib2 = dlsym(lib->handle, "add");
+
+    /*
+    여기서 함수 명을 받아와야 하는가?
+    여기서 함수명 받아서
+    */
+    if (!lib->get_native_lib && !lib->get_native_lib2)
+    {
         LOG_WARNING("warning: failed to lookup `get_native_lib` function "
                     "from native lib %s",
                     name);
         goto fail;
     }
 
-    if (lib->init_native_lib) {
+    if (lib->init_native_lib)
+    {
         int ret = lib->init_native_lib();
-        if (ret != 0) {
+        if (ret != 0)
+        {
             LOG_WARNING("warning: `init_native_lib` function from native "
                         "lib %s failed with %d",
                         name, ret);
@@ -108,23 +118,112 @@ load_native_lib(const char *name)
         }
     }
 
-    lib->n_native_symbols =
-        lib->get_native_lib(&lib->module_name, &lib->native_symbols);
+    // 모든 라이브러리의 모듈 이름 확인
+    // printf("module_name 111 : %s\n", lib->module_name);
+
+    if (lib->get_native_lib2)
+    {
+
+        printf(" ddddddddddddddd   this is start native_lib2\n");
+
+        // // 여기서 총 함수의 개수를 파악할 수 있나?
+        // // 한 함수에 들어가는 정보에는 어떤 것들이 있는가? -> 필요한 정보를 전달해줘야 함
+        // // for(int i = 0; i < lib->n_native_symbols; i++)
+        // // 등록하고자 하는 함수들의 총 개수만큼 반복
+        // int import_function_count = 1;
+        // for(int i = 0; i < import_function_count; i++)
+        // {
+        //     // lib->native_symbols[i].symbol = "add";
+        //     // lib->native_symbols[i].signature = "(ii)i";
+
+        //     // lib->n_native_symbols[i].symbol = "add";
+
+        //     // 여기서 함수명, 함수포인터, 함수 시그니처를 등록
+        //     // 어떤 형식으로 받는가?
+        //     // get_native_lib의 리턴 타입은 uint32_t (주소값을 반환하는건가?)
+        //     #define REG_NATIVE_FUNC(func_name, signature) \
+        //     { #func_name, (void *)&func_name, signature, NULL }
+
+        //     static NativeSymbol native_symbols[] = {
+        //         REG_NATIVE_FUNC(add, "(ii)i"),
+        //         // REG_NATIVE_FUNC(testtest, "(ii)i")
+        //     };
+
+        //     lib->n_native_symbols++;
+
+        // }
+
+        // printf("lib->n_native_symbols : %d\n", lib->n_native_symbols);
+
+        // lib->n_native_symbols = lib->get_native_lib2("add", "(ii)i");
+
+        // lib->module_name = name;
+        // lib->native_symbols = "(ii)i";
+        //  lib->n_native_symbols = 5;
+        //  lib->get_native_lib2(&lib->module_name, &lib->native_symbols);
+
+#define REG_NATIVE_FUNC(func_name, signature)   \
+    {                                           \
+        #func_name, #func_name, signature, NULL \
+    }
+
+        NativeSymbol native_symbols22[] = {
+            REG_NATIVE_FUNC(add, "(ii)i"),
+            // REG_NATIVE_FUNC(testtest, "(ii)i")
+        };
+
+        lib->native_symbols = native_symbols22;
+
+        //  NativeSymbol **p_native_symbols;
+
+        //  *p_native_symbols = native_symbols22;
+
+        lib->n_native_symbols = 1;
+
+        printf(" ddddddddddddddd   this is ennnnnnnndd native_lib2\n");
+    }
+    else
+    {
+        // null 출력됨
+        // printf(" ########################## module_name 555 : %s\n", lib->module_name);
+
+        lib->n_native_symbols =
+            lib->get_native_lib(&lib->module_name, &lib->native_symbols);
+
+        // printf(" ########################## get_native_lib :  %d\n", lib->get_native_lib(&lib->module_name, &lib->native_symbols));
+        // printf(" ########################## module_name 222 : %s\n", lib->module_name);
+        // printf(" native_symbols 222 : %s\n", lib->native_symbols[0].symbol);
+        //      여기서 모든 정보가 불려와짐
+        // 이 부분의 동작을 적용하면 됨
+    }
+
+    printf("module_name 222 : %s\n", lib->module_name);
+
+    for (uint32_t i = 0; i < lib->n_native_symbols; i++)
+    {
+        printf("@@@@@@@@@@@@ Symbol              %u:\n", i + 1);
+        printf("  Name:             %s\n", lib->native_symbols[i].symbol);
+        printf("  Signature:        %s\n", lib->native_symbols[i].signature);
+        printf("  Function Pointer: %p\n", lib->native_symbols[i].func_ptr);
+    }
 
     /* register native symbols */
-    if (!(lib->n_native_symbols > 0 && lib->module_name && lib->native_symbols
-          && wasm_runtime_register_natives(
-              lib->module_name, lib->native_symbols, lib->n_native_symbols))) {
+    if (!(lib->n_native_symbols > 0 && lib->module_name && lib->native_symbols && wasm_runtime_register_natives(lib->module_name, lib->native_symbols, lib->n_native_symbols)))
+    {
         LOG_WARNING("warning: failed to register native lib %s", name);
-        if (lib->deinit_native_lib) {
+        if (lib->deinit_native_lib)
+        {
             lib->deinit_native_lib();
         }
         goto fail;
     }
+
     return lib;
 fail:
-    if (lib != NULL) {
-        if (lib->handle != NULL) {
+    if (lib != NULL)
+    {
+        if (lib->handle != NULL)
+        {
             dlclose(lib->handle);
         }
         wasm_runtime_free(lib);
@@ -139,9 +238,11 @@ load_and_register_native_libs(const char **native_lib_list,
 {
     uint32 i, native_lib_loaded_count = 0;
 
-    for (i = 0; i < native_lib_count; i++) {
+    for (i = 0; i < native_lib_count; i++)
+    {
         struct native_lib *lib = load_native_lib(native_lib_list[i]);
-        if (lib == NULL) {
+        if (lib == NULL)
+        {
             continue;
         }
         native_lib_loaded_list[native_lib_loaded_count++] = lib;
@@ -156,18 +257,21 @@ unregister_and_unload_native_libs(uint32 native_lib_count,
 {
     uint32 i;
 
-    for (i = 0; i < native_lib_count; i++) {
+    for (i = 0; i < native_lib_count; i++)
+    {
         struct native_lib *lib = native_lib_loaded_list[i];
 
         /* unregister native symbols */
         if (!wasm_runtime_unregister_natives(lib->module_name,
-                                             lib->native_symbols)) {
+                                             lib->native_symbols))
+        {
             LOG_WARNING("warning: failed to unregister native lib %p",
                         lib->handle);
             continue;
         }
 
-        if (lib->deinit_native_lib) {
+        if (lib->deinit_native_lib)
+        {
             lib->deinit_native_lib();
         }
 
@@ -177,12 +281,8 @@ unregister_and_unload_native_libs(uint32 native_lib_count,
 }
 #endif /* BH_HAS_DLFCN */
 
-
-
 // this 001 #################################################################
 // this 001 #################################################################
-
-
 
 extern bool
 init_sensor_framework();
@@ -214,12 +314,14 @@ func(void *arg)
     int n;
     struct sockaddr_in servaddr;
 
-    while (1) {
+    while (1)
+    {
         if (sockfd != -1)
             close(sockfd);
         // socket create and verification
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd == -1) {
+        if (sockfd == -1)
+        {
             printf("socket creation failed...\n");
             return NULL;
         }
@@ -232,17 +334,20 @@ func(void *arg)
         servaddr.sin_port = htons(port);
 
         // connect the client socket to server socket
-        if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0) {
+        if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0)
+        {
             printf("connection with the server failed...\n");
             sleep(10);
             continue;
         }
-        else {
+        else
+        {
             printf("connected to the server..\n");
         }
 
         // infinite loop for chat
-        for (;;) {
+        for (;;)
+        {
             bzero(buff, MAX);
 
             // read the message from client and copy it in buffer
@@ -268,13 +373,14 @@ host_init()
     return true;
 }
 
-int
-host_send(void *ctx, const char *buf, int size)
+int host_send(void *ctx, const char *buf, int size)
 {
     int ret;
 
-    if (pthread_mutex_trylock(&sock_lock) == 0) {
-        if (sockfd == -1) {
+    if (pthread_mutex_trylock(&sock_lock) == 0)
+    {
+        if (sockfd == -1)
+        {
             pthread_mutex_unlock(&sock_lock);
             return 0;
         }
@@ -288,8 +394,7 @@ host_send(void *ctx, const char *buf, int size)
     return -1;
 }
 
-void
-host_destroy()
+void host_destroy()
 {
     if (server_mode)
         close(listenfd);
@@ -324,7 +429,8 @@ func_server_mode(void *arg)
     /* First call to socket() function */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (listenfd < 0) {
+    if (listenfd < 0)
+    {
         perror("ERROR opening socket");
         exit(1);
     }
@@ -337,7 +443,8 @@ func_server_mode(void *arg)
     serv_addr.sin_port = htons(port);
 
     /* Now bind the host address using bind() call.*/
-    if (bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    if (bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
         perror("ERROR on binding");
         exit(1);
     }
@@ -345,28 +452,32 @@ func_server_mode(void *arg)
     listen(listenfd, 5);
     clilent = sizeof(cli_addr);
 
-    while (1) {
+    while (1)
+    {
         pthread_mutex_lock(&sock_lock);
 
         sockfd = accept(listenfd, (struct sockaddr *)&cli_addr, &clilent);
 
         pthread_mutex_unlock(&sock_lock);
 
-        if (sockfd < 0) {
+        if (sockfd < 0)
+        {
             perror("ERROR on accept");
             exit(1);
         }
 
         printf("connection established!\n");
 
-        for (;;) {
+        for (;;)
+        {
             bzero(buff, MAX);
 
             // read the message from client and copy it in buffer
             n = read(sockfd, buff, sizeof(buff));
 
             // socket disconnected
-            if (n <= 0) {
+            if (n <= 0)
+            {
                 pthread_mutex_lock(&sock_lock);
                 close(sockfd);
                 sockfd = -1;
@@ -385,45 +496,46 @@ func_server_mode(void *arg)
 static int
 parse_baudrate(int baud)
 {
-    switch (baud) {
-        case 9600:
-            return B9600;
-        case 19200:
-            return B19200;
-        case 38400:
-            return B38400;
-        case 57600:
-            return B57600;
-        case 115200:
-            return B115200;
-        case 230400:
-            return B230400;
-        case 460800:
-            return B460800;
-        case 500000:
-            return B500000;
-        case 576000:
-            return B576000;
-        case 921600:
-            return B921600;
-        case 1000000:
-            return B1000000;
-        case 1152000:
-            return B1152000;
-        case 1500000:
-            return B1500000;
-        case 2000000:
-            return B2000000;
-        case 2500000:
-            return B2500000;
-        case 3000000:
-            return B3000000;
-        case 3500000:
-            return B3500000;
-        case 4000000:
-            return B4000000;
-        default:
-            return -1;
+    switch (baud)
+    {
+    case 9600:
+        return B9600;
+    case 19200:
+        return B19200;
+    case 38400:
+        return B38400;
+    case 57600:
+        return B57600;
+    case 115200:
+        return B115200;
+    case 230400:
+        return B230400;
+    case 460800:
+        return B460800;
+    case 500000:
+        return B500000;
+    case 576000:
+        return B576000;
+    case 921600:
+        return B921600;
+    case 1000000:
+        return B1000000;
+    case 1152000:
+        return B1152000;
+    case 1500000:
+        return B1500000;
+    case 2000000:
+        return B2000000;
+    case 2500000:
+        return B2500000;
+    case 3000000:
+        return B3000000;
+    case 3500000:
+        return B3500000;
+    case 4000000:
+        return B4000000;
+    default:
+        return -1;
     }
 }
 static bool
@@ -448,7 +560,8 @@ uart_init(const char *device, int baudrate, int *fd)
     uart_term.c_cc[VMIN] = 1;
     tcflush(uart_fd, TCIFLUSH);
 
-    if (tcsetattr(uart_fd, TCSANOW, &uart_term) != 0) {
+    if (tcsetattr(uart_fd, TCSANOW, &uart_term) != 0)
+    {
         close(uart_fd);
         return false;
     }
@@ -464,17 +577,20 @@ func_uart_mode(void *arg)
     int n;
     char buff[MAX];
 
-    if (!uart_init(uart_device, baudrate, &uartfd)) {
+    if (!uart_init(uart_device, baudrate, &uartfd))
+    {
         printf("open uart fail! %s\n", uart_device);
         return NULL;
     }
 
-    for (;;) {
+    for (;;)
+    {
         bzero(buff, MAX);
 
         n = read(uartfd, buff, sizeof(buff));
 
-        if (n <= 0) {
+        if (n <= 0)
+        {
             close(uartfd);
             uartfd = -1;
             break;
@@ -511,7 +627,7 @@ static host_interface interface = {
 
 #endif
 
-static char global_heap_buf[270 * 1024] = { 0 };
+static char global_heap_buf[270 * 1024] = {0};
 
 /* clang-format off */
 static void showUsage()
@@ -548,54 +664,55 @@ parse_args(int argc, char *argv[])
 {
     int c;
 
-    while (1) {
+    while (1)
+    {
         int optIndex = 0;
         static struct option longOpts[] = {
 #ifndef CONNECTION_UART
-            { "server_mode", no_argument, NULL, 's' },
-            { "host_address", required_argument, NULL, 'a' },
-            { "port", required_argument, NULL, 'p' },
+            {"server_mode", no_argument, NULL, 's'},
+            {"host_address", required_argument, NULL, 'a'},
+            {"port", required_argument, NULL, 'p'},
 #else
-            { "uart", required_argument, NULL, 'u' },
-            { "baudrate", required_argument, NULL, 'b' },
+            {"uart", required_argument, NULL, 'u'},
+            {"baudrate", required_argument, NULL, 'b'},
 #endif
-            { "help", required_argument, NULL, 'h' },
-            { 0, 0, 0, 0 }
-        };
+            {"help", required_argument, NULL, 'h'},
+            {0, 0, 0, 0}};
 
         c = getopt_long(argc, argv, "sa:p:u:b:h", longOpts, &optIndex);
         if (c == -1)
             break;
 
-        switch (c) {
+        switch (c)
+        {
 #ifndef CONNECTION_UART
-            case 's':
-                server_mode = true;
-                break;
-            case 'a':
-                host_address = optarg;
-                printf("host address: %s\n", host_address);
-                break;
-            case 'p':
-                port = atoi(optarg);
-                printf("port: %d\n", port);
-                break;
+        case 's':
+            server_mode = true;
+            break;
+        case 'a':
+            host_address = optarg;
+            printf("host address: %s\n", host_address);
+            break;
+        case 'p':
+            port = atoi(optarg);
+            printf("port: %d\n", port);
+            break;
 #else
-            case 'u':
-                uart_device = optarg;
-                printf("uart device: %s\n", uart_device);
-                break;
-            case 'b':
-                baudrate = parse_baudrate(atoi(optarg));
-                printf("uart baudrate: %s\n", optarg);
-                break;
+        case 'u':
+            uart_device = optarg;
+            printf("uart device: %s\n", uart_device);
+            break;
+        case 'b':
+            baudrate = parse_baudrate(atoi(optarg));
+            printf("uart baudrate: %s\n", optarg);
+            break;
 #endif
-            case 'h':
-                showUsage();
-                return false;
-            default:
-                showUsage();
-                return false;
+        case 'h':
+            showUsage();
+            return false;
+        default:
+            showUsage();
+            return false;
         }
     }
 
@@ -643,12 +760,10 @@ hal_init(void)
 }
 
 // Driver function
-int
-iwasm_main(int argc, char *argv[])
+int iwasm_main(int argc, char *argv[])
 {
 
-
-int32 ret = -1;
+    int32 ret = -1;
     char *wasm_file = NULL;
     const char *func_name = NULL;
     uint8 *wasm_file_buf = NULL;
@@ -677,7 +792,7 @@ int32 ret = -1;
     wasm_module_inst_t wasm_module_inst = NULL;
     RunningMode running_mode = 0;
     RuntimeInitArgs init_args;
-    char error_buf[128] = { 0 };
+    char error_buf[128] = {0};
 #if WASM_ENABLE_LOG != 0
     int log_verbose_level = 2;
 #endif
@@ -690,7 +805,7 @@ int32 ret = -1;
     libc_wasi_parse_context_t wasi_parse_ctx;
 #endif
 #if BH_HAS_DLFCN
-    const char *native_lib_list[8] = { NULL };
+    const char *native_lib_list[8] = {NULL};
     uint32 native_lib_count = 0;
     struct native_lib *native_lib_loaded_list[8];
     uint32 native_lib_loaded_count = 0;
@@ -710,30 +825,32 @@ int32 ret = -1;
     memset(&wasi_parse_ctx, 0, sizeof(wasi_parse_ctx));
 #endif
 
-for (argc--, argv++; argc > 0 && argv[0][0] == '-'; argc--, argv++) {
+    for (argc--, argv++; argc > 0 && argv[0][0] == '-'; argc--, argv++)
+    {
 
-if (!strcmp(argv[0], "-f") || !strcmp(argv[0], "--function")) {
+        if (!strcmp(argv[0], "-f") || !strcmp(argv[0], "--function"))
+        {
             argc--, argv++;
-            if (argc < 2) {
+            if (argc < 2)
+            {
                 return parse_args(argc, argv);
             }
             func_name = argv[0];
         }
 
-else if (!strncmp(argv[0], "--native-lib=", 13)) {
+        else if (!strncmp(argv[0], "--native-lib=", 13))
+        {
             if (argv[0][13] == '\0')
                 return parse_args(argc, argv);
-            if (native_lib_count >= sizeof(native_lib_list) / sizeof(char *)) {
+            if (native_lib_count >= sizeof(native_lib_list) / sizeof(char *))
+            {
                 printf("Only allow max native lib number %d\n",
                        (int)(sizeof(native_lib_list) / sizeof(char *)));
                 return 1;
             }
             native_lib_list[native_lib_count++] = argv[0] + 13;
         }
-
-}
-
-
+    }
 
     // RuntimeInitArgs init_args;
     korp_tid tid;
@@ -750,7 +867,8 @@ else if (!strncmp(argv[0], "--native-lib=", 13)) {
     init_args.mem_alloc_option.pool.heap_buf = global_heap_buf;
     init_args.mem_alloc_option.pool.heap_size = sizeof(global_heap_buf);
 
-if (!wasm_runtime_full_init(&init_args)) {
+    if (!wasm_runtime_full_init(&init_args))
+    {
         printf("Init runtime environment failed.\n");
         return -1;
     }
@@ -759,12 +877,14 @@ if (!wasm_runtime_full_init(&init_args)) {
         native_lib_list, native_lib_count, native_lib_loaded_list);
 
     /* initialize runtime environment */
-    if (!wasm_runtime_full_init(&init_args)) {
+    if (!wasm_runtime_full_init(&init_args))
+    {
         printf("Init runtime environment failed.\n");
         return -1;
     }
 
-    if (!init_connection_framework()) {
+    if (!init_connection_framework())
+    {
         goto fail1;
     }
 
@@ -772,12 +892,14 @@ if (!wasm_runtime_full_init(&init_args)) {
 
     hal_init();
 
-    if (!init_sensor_framework()) {
+    if (!init_sensor_framework())
+    {
         goto fail2;
     }
 
     /* timer manager */
-    if (!init_wasm_timer()) {
+    if (!init_wasm_timer())
+    {
         goto fail3;
     }
 
