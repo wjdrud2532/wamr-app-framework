@@ -5,6 +5,8 @@
 
 #!/bin/bash
 
+#commit test
+
 PROJECT_DIR=$PWD
 WAMR_APP_FRAMEWORK=${PWD}/../../
 WAMR_DIR=${PWD}/../../deps/wasm-micro-runtime
