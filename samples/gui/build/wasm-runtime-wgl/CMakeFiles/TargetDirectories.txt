@@ -1,0 +1,4 @@
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/wasm-runtime-wgl/CMakeFiles/libiwasm.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/wasm-runtime-wgl/CMakeFiles/wasm_runtime_wgl.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/wasm-runtime-wgl/CMakeFiles/edit_cache.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/wasm-runtime-wgl/CMakeFiles/rebuild_cache.dir

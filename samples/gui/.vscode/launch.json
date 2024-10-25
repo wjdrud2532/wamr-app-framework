@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "LLDB Launch",
+            "type": "lldb",
+            "request": "launch",
+            "program": "/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/out/wasm_runtime_wgl",  // 실행 파일 경로
+            "args": [
+                "--",
+                "--native-lib=./libtest_add.so",
+                "--native-lib=./libtest_sqrt.so",
+                "--native-lib=./libexample.so"
+            ], 
+            "cwd": "${workspaceFolder}",  // 현재 작업 디렉터리
+
+            "stopOnEntry": false,  // 실행 시 첫 진입점에서 멈출지 여부
+
+            "externalConsole": true,  // 외부 터미널 사용 여부
+
+            // "preLaunchTask": "build",  // 실행 전 빌드 작업 (선택사항)
+
+            "terminal": "integrated",  // 통합 터미널 사용
+
+            "MIMode": "lldb",  // LLDB 모드 설정
+
+            "sourceLanguages": ["c", "cpp"],  // 디버깅할 소스 언어
+
+            "internalConsoleOptions": "openOnSessionStart"  // 디버깅 시작 시 콘솔 열림
+        }
+    ]
+}

@@ -13,14 +13,15 @@ BUILD_DIR=${PWD}/build
 WAMR_RUNTIME_CFG=${PROJECT_DIR}/wamr_config_gui.cmake
 LV_CFG_PATH=${PROJECT_DIR}/lv_config
 
+
 if [ -z $KW_BUILD ] || [ -z $KW_OUT_FILE ];then
     echo "Local Build Env"
     cmakewrap="cmake"
-    makewrap="make"
+    makewrap="make -j$(nproc)"
 else
     echo "Klocwork Build Env"
     cmakewrap="cmake -DCMAKE_BUILD_TYPE=Debug"
-    makewrap="kwinject -o $KW_OUT_FILE make"
+    makewrap="kwinject -o $KW_OUT_FILE make -j$(nproc)"
 fi
 
 if [ ! -d $BUILD_DIR ]; then
@@ -49,7 +50,7 @@ mkdir -p wasm-runtime-wgl
 cd wasm-runtime-wgl
 $cmakewrap ${PROJECT_DIR}/wasm-runtime-wgl/linux-build -DWAMR_BUILD_SDK_PROFILE=gui
 [ $? -eq 0 ] || exit $?
-$makewrap
+$makewrap VERBOSE=1  > log.txt
 [ $? -eq 0 ] || exit $?
 cp wasm_runtime_wgl ${OUT_DIR}/
 

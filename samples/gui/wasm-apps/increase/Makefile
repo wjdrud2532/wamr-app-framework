@@ -8,7 +8,7 @@ IWASM_DIR = ${WAMR_DIR}/core/iwasm
 APP_FRAMEWORK_DIR = ../../../../app-framework
 DEPS_DIR = ../../../../deps
 
-CFLAGS += -O3 \
+CFLAGS += -O0 \
 	  -Wno-int-conversion \
 	  -I$(APP_DIR)/src \
 	  -I$(APP_FRAMEWORK_DIR)/base/app \
@@ -26,9 +26,9 @@ SRCS += $(APP_FRAMEWORK_DIR)/wgl/app/src/*.c
 
 all:
 	@$(CC) $(CFLAGS) $(SRCS) \
-    --target=wasm32-wasi -O3 -z stack-size=2048 -Wl,--initial-memory=65536 \
+    --target=wasm32-wasi -O0 -z stack-size=2048 -Wl,--initial-memory=65536 \
     -nostdlib -Wl,--allow-undefined \
-    -Wl,--strip-all,--no-entry \
+    -Wl, --no-entry \
     -Wl,--export=on_init -Wl,--export=on_timer_callback \
     -Wl,--export=on_widget_event \
     -Wl,--export=__heap_base,--export=__data_end \

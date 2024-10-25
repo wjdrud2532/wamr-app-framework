@@ -1,0 +1,3 @@
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/host-tool/CMakeFiles/host_tool.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/host-tool/CMakeFiles/edit_cache.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/samples/gui/build/host-tool/CMakeFiles/rebuild_cache.dir

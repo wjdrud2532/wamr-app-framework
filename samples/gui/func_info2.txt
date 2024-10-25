@@ -1,0 +1,7 @@
+
+SDL_Init (i)i
+SDL_CreateWindow ($iiiii)i
+
+SDL_CreateRenderer ($ii)i
+
+SDL_GetWindowSurface ($)i

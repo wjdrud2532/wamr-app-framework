@@ -13,7 +13,8 @@ wasi_sdk_home="/opt/wasi-sdk"
 # libc support, default builtin-libc
 LIBC_SUPPORT="BUILTIN"
 CM_DEXTRA_SDK_INCLUDE_PATH=""
-CM_BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+# CM_BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+CM_BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
 CM_TOOLCHAIN=""
 
 # menuconfig will pass options to this script
@@ -209,7 +210,7 @@ else
 fi
 [ $? -eq 0 ] || exit $?
 
-make
+make -j$(nproc)
 if (( $? == 0 )); then
     echo -e "\033[32mSuccessfully built app-sdk under ${curr_profile_dir}/app-sdk\033[0m"
 else
@@ -232,7 +233,7 @@ cmake .. $CM_DEXTRA_SDK_INCLUDE_PATH \
        -DCONFIG_PATH=${wamr_config_cmake_file} \
        $CM_TOOLCHAIN $CM_BUILD_TYPE
 [ $? -eq 0 ] || exit $?
-make
+make -j$(nproc)
 
 if (( $? == 0 )); then
     echo -e "\033[32mSuccessfully built runtime library under ${curr_profile_dir}/runtime-sdk/lib\033[0m"

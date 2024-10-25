@@ -1,0 +1,18 @@
+{
+    "C_Cpp.dimInactiveRegions": false,
+    "files.associations": {
+        "timer_wasm_app.h": "c",
+        "bh_platform.h": "c",
+        "wasm_export.h": "c",
+        "display_indev.h": "c",
+        "time.h": "c",
+        "sdl.h": "c",
+        "app_manager_export.h": "c",
+        "stdio.h": "c",
+        "stdint.h": "c",
+        "stdlib.h": "c",
+        "stdbool.h": "c",
+        "lvgl.h": "c"
+    },
+
+}

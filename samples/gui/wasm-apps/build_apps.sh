@@ -28,17 +28,17 @@ rm -rf build
 mkdir build && cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=${WAMR_APP_FRAMEWORK_DIR}/wamr-sdk/out/gui/app-sdk/wamr_toolchain.cmake \
          -DWASI_SDK_DIR=/opt/wasi-sdk
-make
+make -j$(nproc)
 [ $? -eq 0 ] || exit $?
 mv ui_increase.wasm ${OUT_DIR}/
 
 # $makewrap
 # mv ui_app.wasm ${OUT_DIR}/
 
-cd ${APPS_ROOT}/decrease
-make
-[ $? -eq 0 ] || exit $?
-mv ui_decrease.wasm ${OUT_DIR}/
+# cd ${APPS_ROOT}/decrease
+# make
+# [ $? -eq 0 ] || exit $?
+# mv ui_decrease.wasm ${OUT_DIR}/
 
 echo "WASM files generated in folder  ${OUT_DIR}"
 

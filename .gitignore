@@ -1,0 +1,19 @@
+# 무시할 파일 형식
+*.md
+*.log
+*.tmp
+*.o
+*.d
+*.out
+*.bin
+*.check_cache
+*.Identifier
+*.ts
+
+
+# 무시하지 않을 파일 형식
+!*.txt
+!*.c
+!*.cpp
+!*.h
+!*.cmake

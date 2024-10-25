@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(app-framework)
 
-SET (CMAKE_C_FLAGS "-O3")
+SET (CMAKE_C_FLAGS "-O0")
 
 if (NOT DEFINED WAMR_BUILD_SDK_PROFILE)
     set (WAMR_BUILD_SDK_PROFILE       "default")

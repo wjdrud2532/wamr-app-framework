@@ -1,0 +1,3 @@
+/home/jkhan/iwasm/wamr-app-framework_debug/wamr-sdk/runtime/build-runtime-sdk/CMakeFiles/vmlib.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/wamr-sdk/runtime/build-runtime-sdk/CMakeFiles/edit_cache.dir
+/home/jkhan/iwasm/wamr-app-framework_debug/wamr-sdk/runtime/build-runtime-sdk/CMakeFiles/rebuild_cache.dir

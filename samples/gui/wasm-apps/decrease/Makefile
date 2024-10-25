@@ -9,7 +9,7 @@ SDK_DIR = $(APP_DIR)/../../../../wamr-sdk/out/gui/app-sdk
 APP_FRAMEWORK_DIR = $(SDK_DIR)/wamr-app-framework
 DEPS_DIR = $(APP_DIR)/../../../../deps
 
-CFLAGS += -O3 \
+CFLAGS += -O0 \
     -Wno-int-conversion \
     -I$(APP_DIR)/src \
     -I$(APP_FRAMEWORK_DIR)/include \
@@ -19,7 +19,7 @@ SRCS += $(APP_DIR)/src/main.c
 
 all:
 	@$(CC) $(CFLAGS) $(SRCS) \
-    --target=wasm32 -O3 -z stack-size=2048 -Wl,--initial-memory=65536 \
+    --target=wasm32 -O0 -z stack-size=2048 -Wl,--initial-memory=65536 \
     --sysroot=$(SDK_DIR)/libc-builtin-sysroot       \
     -L$(APP_FRAMEWORK_DIR)/lib -lapp_framework      \
     -Wl,--allow-undefined-file=$(SDK_DIR)/libc-builtin-sysroot/share/defined-symbols.txt \

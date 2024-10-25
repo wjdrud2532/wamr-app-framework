@@ -1,0 +1,11 @@
+add (ii)i
+func222 (ii)i
+hello ()i
+user_func1 (i)i
+user_func2 ($)i
+user_func3 (i)i
+
+halfff (f)f
+halfff2 (f)f
+halfff3 (F)i
+
