@@ -1,0 +1,276 @@
+/*
+ * Copyright (C) 2019 Intel Corporation.  All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
+
+
+#include "wa-inc/lvgl/lvgl.h"
+#include "wa-inc/timer_wasm_app.h"
+#include "wasm_app.h"
+#include <stdlib.h>
+
+#include <stdio.h>    
+#include <stdint.h>
+
+
+
+
+// #include <SDL2/SDL.h>
+
+// #include "/usr/include/SDL2/SDL.h"
+// #include "/usr/include/SDL2/SDL.h" // SDL 관련 함수
+
+// #include "./zlib.h"
+// #include <zlog.h>
+
+#include "mystr.h"
+
+
+#include <stdlib.h>
+// #include <dlfcn.h>
+
+typedef struct SDL_Window SDL_Window;
+typedef struct SDL_Renderer SDL_Renderer;
+
+typedef int (*SDL_Init_t)(unsigned int flags);
+typedef void (*SDL_Quit_t)(void);
+typedef SDL_Window* (*SDL_CreateWindow_t)(const char*, int, int, int, int, unsigned int);
+typedef SDL_Renderer* (*SDL_CreateRenderer_t)(SDL_Window*, int, unsigned int);
+typedef int (*SDL_SetRenderDrawColor_t)(SDL_Renderer*, unsigned char, unsigned char, unsigned char, unsigned char);
+typedef int (*SDL_RenderClear_t)(SDL_Renderer*);
+typedef void (*SDL_RenderPresent_t)(SDL_Renderer*);
+typedef void (*SDL_Delay_t)(unsigned int ms);
+typedef void (*SDL_DestroyRenderer_t)(SDL_Renderer*);
+typedef void (*SDL_DestroyWindow_t)(SDL_Window*);
+
+#define SDL_INIT_VIDEO 0x00000020
+#define RTLD_LAZY	0x00001
+
+#define	EXIT_FAILURE	1	/* Failing exit status.  */
+#define	EXIT_SUCCESS	0	/* Successful exit status.  */
+
+
+// #define MONITOR_SDL_INCLUDE_PATH <SDL2/SDL.h>
+// #include <SDL2/SDL.h>
+// #include "SDL2/SDL.h"
+// #include "//usr//include//SDL2/SDL.h"
+// #include </usr/include/SDL2/SDL_ttf.h>  // SDL_ttf를 사용하는 경우
+
+
+extern char g_widget_text[];
+
+int test_add(int x, int y);
+
+int test_add2(float x, int y);
+
+float halfff(float x);
+
+float halfff2(float x);
+
+int test_sqrt(int x, int y);
+
+int test_hello(const char *name, char *buf, size_t buflen);
+
+int test_hello2(const char *name, char *buf, size_t buflen);
+
+int add(int x, int y);
+
+int func222(int x, int y);
+
+int testtest(int x, int y);
+
+static void btn_event_cb(lv_obj_t *btn, lv_event_t event);
+
+uint32_t count = 0;
+char count_str[11] = {0};
+lv_obj_t *hello_world_label;
+lv_obj_t *count_label;
+lv_obj_t *btn1;
+lv_obj_t *label_count1;
+int label_count1_value = 1;
+char label_count1_str[11] = {0};
+
+void timer1_update(user_timer_t timer1)
+{
+  if ((count % 100) == 0)
+  {
+    snprintf(count_str, sizeof(count_str), "%d", count / 100);
+    lv_label_set_text(count_label, count_str);
+  }
+  ++count;
+}
+
+void on_init()
+{
+  char *text;
+
+  hello_world_label = lv_label_create(NULL, NULL);
+  lv_label_set_text(hello_world_label, " ");
+  text = lv_label_get_text(hello_world_label);
+  printf("Label text %lu %s \n\n", strlen(text), text);
+  lv_obj_align(hello_world_label, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
+
+  count_label = lv_label_create(NULL, NULL);
+  lv_obj_align(count_label, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
+
+  /* Create a button on the current loaded screen */
+  btn1 = lv_btn_create(NULL, NULL);
+  /* Set function to be called when the button is released */
+  lv_obj_set_event_cb(btn1, (lv_event_cb_t)btn_event_cb);
+  /* Align below the label */
+  lv_obj_align(btn1, NULL, LV_ALIGN_CENTER, 0, 0);
+
+  /* Create a label on the button */
+  lv_obj_t *btn_label = lv_label_create(btn1, NULL);
+  lv_label_set_text(btn_label, "import test");
+
+  label_count1 = lv_label_create(NULL, NULL);
+  lv_label_set_text(label_count1, "1");
+  lv_obj_align(label_count1, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+
+  /* Set up a timer */
+  user_timer_t timer;
+  timer = api_timer_create(10, true, false, timer1_update);
+  if (timer)
+    api_timer_restart(timer, 10);
+  else
+    printf("Fail to create timer.\n");
+
+
+// void *handle = dlopen("libSDL2.so", RTLD_LAZY);
+//     if (!handle) {
+//         fprintf(stderr, "SDL 라이브러리를 로드할 수 없습니다: %s\n", dlerror());
+//         exit(EXIT_FAILURE);
+//     }
+
+//     SDL_Init_t SDL_Init = (SDL_Init_t)dlsym(handle, "SDL_Init");
+//     SDL_Quit_t SDL_Quit = (SDL_Quit_t)dlsym(handle, "SDL_Quit");
+//     SDL_CreateWindow_t SDL_CreateWindow = (SDL_CreateWindow_t)dlsym(handle, "SDL_CreateWindow");
+//     SDL_CreateRenderer_t SDL_CreateRenderer = (SDL_CreateRenderer_t)dlsym(handle, "SDL_CreateRenderer");
+//     SDL_SetRenderDrawColor_t SDL_SetRenderDrawColor = (SDL_SetRenderDrawColor_t)dlsym(handle, "SDL_SetRenderDrawColor");
+//     SDL_RenderClear_t SDL_RenderClear = (SDL_RenderClear_t)dlsym(handle, "SDL_RenderClear");
+//     SDL_RenderPresent_t SDL_RenderPresent = (SDL_RenderPresent_t)dlsym(handle, "SDL_RenderPresent");
+//     SDL_Delay_t SDL_Delay = (SDL_Delay_t)dlsym(handle, "SDL_Delay");
+//     SDL_DestroyRenderer_t SDL_DestroyRenderer = (SDL_DestroyRenderer_t)dlsym(handle, "SDL_DestroyRenderer");
+//     SDL_DestroyWindow_t SDL_DestroyWindow = (SDL_DestroyWindow_t)dlsym(handle, "SDL_DestroyWindow");
+
+// // 함수 로딩 에러 체크
+//     if (!SDL_Init || !SDL_Quit || !SDL_CreateWindow || !SDL_CreateRenderer ||
+//         !SDL_SetRenderDrawColor || !SDL_RenderClear || !SDL_RenderPresent ||
+//         !SDL_Delay || !SDL_DestroyRenderer || !SDL_DestroyWindow) {
+//         fprintf(stderr, "SDL 함수 로딩 실패: %s\n", dlerror());
+//         dlclose(handle);
+//         exit(EXIT_FAILURE);
+//     }
+
+    // SDL 초기화
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        // fprintf(stderr, "SDL 초기화 실패\n");
+        // dlclose(handle);
+        // exit(EXIT_FAILURE);
+        printf("sdl 초기화 실패\n");
+    }
+    printf("sdl 초기화 성공\n");
+
+    
+    // 윈도우와 렌더러 생성
+    SDL_Window *window = SDL_CreateWindow("SDL Example", 100, 100, 640, 480, 0);
+    if (!window) {
+        // fprintf(stderr, "윈도우 생성 실패\n");
+        SDL_Quit();
+        // dlclose(handle);
+        exit(EXIT_FAILURE);
+    }
+    printf("윈도우 생성 성공\n");
+
+    printf("window 's pointer : %p\n", window);
+    // window = (uint32)window & 0x00FFFFFF;
+    // printf("window 's pointer : %p\n", window);
+    
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!renderer) {
+        // fprintf(stderr, "렌더러 생성 실패\n");
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        // dlclose(handle);
+        exit(EXIT_FAILURE);
+    }
+    printf("렌더러 생성 성공\n");
+
+    // 화면 지우기 및 색 설정
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // 빨간색
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+
+    // 3초 대기
+    SDL_Delay(3000);
+
+    // 리소스 해제
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    // dlclose(handle);
+
+
+
+}
+
+static void btn_event_cb(lv_obj_t *btn, lv_event_t event)
+{
+  if (event == LV_EVENT_RELEASED)
+  {
+    label_count1_value++;
+    snprintf(label_count1_str, sizeof(label_count1_str), "%d",
+             label_count1_value);
+    lv_label_set_text(label_count1, label_count1_str);
+    if (label_count1_value == 100)
+      label_count1_value = 0;
+  }
+}
+
+
+  // res = test_add(x, y); // 1665
+  // printf("test_add %d + %d = %d\n", x, y, res);
+
+  // x = 5, y = 10;
+  // res = test_add_error(x, y);
+  // printf("test_add_error result is : %d + %d = %d\n", x, y, res);
+
+  // zlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlog
+  // zlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlog
+  // if (zlog_init("zlog.conf"))
+  // {
+  //   printf("zlog 초기화 실패\n");
+  //   // return -1;
+  // }
+  // else
+  // {
+  //   printf("zlog 초기화 성공\n");
+  // }
+
+  // // 카테고리 가져오기
+  // zlog_category_t *my_cat = zlog_get_category("my_category");
+  // if (!my_cat)
+  // {
+  //   printf("카테고리 가져오기 실패\n");
+  //   zlog_fini();
+  //   // return -2;
+  // }
+  // else
+  // {
+  //   printf("카테고리 가져오기 성공\n");
+  // }
+
+  // 로그 기록
+  // zlog_info(my_cat, "정보 로그 메시지");
+  // zlog_warn(my_cat, "경고 로그 메시지");
+  // zlog_error(my_cat, "에러 로그 메시지");
+  // zlog_debug(my_cat, "디버그 로그 메시지");
+
+  // zlog 종료
+  // zlog_fini();
+
+  // zlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlog
+  // zlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlog
+  // zlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlogzlog

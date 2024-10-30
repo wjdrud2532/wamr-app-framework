@@ -5,8 +5,6 @@
 
 #!/bin/bash
 
-#commit test
-
 PROJECT_DIR=$PWD
 WAMR_APP_FRAMEWORK=${PWD}/../../
 WAMR_DIR=${PWD}/../../deps/wasm-micro-runtime
@@ -34,44 +32,44 @@ echo "#####################clone dependent projects"
 cd ${WAMR_APP_FRAMEWORK}/deps
 ./download.sh
 
-rm -rf ${OUT_DIR}
-mkdir ${OUT_DIR}
+# rm -rf ${OUT_DIR}
+# mkdir ${OUT_DIR}
 
-echo -e "\n\n"
-echo "##################### 1. build wamr-sdk gui start#####################"
+# echo -e "\n\n"
+# echo "##################### 1. build wamr-sdk gui start#####################"
 
-cd ${WAMR_APP_FRAMEWORK}/wamr-sdk
-./build_sdk.sh -n gui -x ${WAMR_RUNTIME_CFG} -e ${LV_CFG_PATH}
-[ $? -eq 0 ] || exit $?
+# cd ${WAMR_APP_FRAMEWORK}/wamr-sdk
+# ./build_sdk.sh -n gui -x ${WAMR_RUNTIME_CFG} -e ${LV_CFG_PATH}
+# [ $? -eq 0 ] || exit $?
 
-echo "#####################build wamr-sdk success"
+# echo "#####################build wamr-sdk success"
 
-echo "##################### 2. build wasm runtime start#####################"
-cd $BUILD_DIR
-mkdir -p wasm-runtime-wgl
-cd wasm-runtime-wgl
-$cmakewrap ${PROJECT_DIR}/wasm-runtime-wgl/linux-build -DWAMR_BUILD_SDK_PROFILE=gui
-[ $? -eq 0 ] || exit $?
-$makewrap VERBOSE=1  > log.txt
-[ $? -eq 0 ] || exit $?
-cp wasm_runtime_wgl ${OUT_DIR}/
+# echo "##################### 2. build wasm runtime start#####################"
+# cd $BUILD_DIR
+# mkdir -p wasm-runtime-wgl
+# cd wasm-runtime-wgl
+# $cmakewrap ${PROJECT_DIR}/wasm-runtime-wgl/linux-build -DWAMR_BUILD_SDK_PROFILE=gui
+# [ $? -eq 0 ] || exit $?
+# $makewrap VERBOSE=1  > log.txt
+# [ $? -eq 0 ] || exit $?
+# cp wasm_runtime_wgl ${OUT_DIR}/
 
-echo "##################### build littlevgl wasm runtime end#####################"
-echo -e "\n\n"
+# echo "##################### build littlevgl wasm runtime end#####################"
+# echo -e "\n\n"
 
-echo "#####################build host-tool"
-cd $BUILD_DIR
-mkdir -p host-tool
-cd host-tool
-$cmakewrap ${PROJECT_DIR}/../../test-tools/host-tool
-$makewrap
-if [ $? != 0 ];then
-        echo "BUILD_FAIL host tool exit as $?\n"
-        exit 2
-fi
-cp host_tool ${OUT_DIR}
-echo "#####################build host-tool success"
-echo -e "\n\n"
+# echo "#####################build host-tool"
+# cd $BUILD_DIR
+# mkdir -p host-tool
+# cd host-tool
+# $cmakewrap ${PROJECT_DIR}/../../test-tools/host-tool
+# $makewrap
+# if [ $? != 0 ];then
+#         echo "BUILD_FAIL host tool exit as $?\n"
+#         exit 2
+# fi
+# cp host_tool ${OUT_DIR}
+# echo "#####################build host-tool success"
+# echo -e "\n\n"
 
 echo "##################### 3. build wasm ui app start#####################"
 cd ${PROJECT_DIR}/wasm-apps

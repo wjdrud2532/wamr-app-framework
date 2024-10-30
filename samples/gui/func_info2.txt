@@ -1,7 +1,17 @@
 
 SDL_Init (i)i
 SDL_CreateWindow ($iiiii)i
-
 SDL_CreateRenderer ($ii)i
+SDL_GetWindowSurface (i)i
 
-SDL_GetWindowSurface ($)i
+SDL_Quit (I)i
+
+
+
+foo3 (ii)i
+foo4 ($)i
+foo7 ($)i
+foo8 (ii)i
+foo9 ($ii)i
+foo10 (ii)i
+

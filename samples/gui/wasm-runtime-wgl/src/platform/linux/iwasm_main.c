@@ -995,16 +995,16 @@ int iwasm_main(int argc, char *argv[])
       native_lib_list[native_lib_count++] = argv[0] + 13;
     }
 
-    else if (!strncmp(argv[0], "--stack-size=", 13)) {
-            if (argv[0][13] == '\0')
-                return parse_args(argc, argv);
-            stack_size = atoi(argv[0] + 13);
-        }
-    else if (!strncmp(argv[0], "--heap-size=", 12)) {
-            if (argv[0][12] == '\0')
-                return parse_args(argc, argv);
-            heap_size = atoi(argv[0] + 12);
-        }
+    // else if (!strncmp(argv[0], "--stack-size=", 13)) {
+    //         if (argv[0][13] == '\0')
+    //             return parse_args(argc, argv);
+    //         stack_size = atoi(argv[0] + 13);
+    //     }
+    // else if (!strncmp(argv[0], "--heap-size=", 12)) {
+    //         if (argv[0][12] == '\0')
+    //             return parse_args(argc, argv);
+    //         heap_size = atoi(argv[0] + 12);
+    //     }
 
   }
 

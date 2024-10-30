@@ -28,6 +28,9 @@ void rectangle() {
         return;
     }
 
+    printf("%d\n", window);
+    // printf("%d\n", window->y);
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());

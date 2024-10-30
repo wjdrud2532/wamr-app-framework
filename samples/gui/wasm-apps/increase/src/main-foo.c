@@ -180,13 +180,14 @@ strufoo9 = foo9(stru, 33, 44);
 printf("비트 마스킹 전 :");
 printf("strufoo9's pointer %p\n", strufoo9);
 
-strufoo9 = (uint16)strufoo9;
+strufoo9 = (uint32)strufoo9 & 0x0000FFFF;
+
 printf("비트 마스킹 후 :");
 printf("strufoo9's pointer %p\n", strufoo9);
 
-// printf("함수 호출 후\n");
-// printf("stru a : %d\n", stru->a);
-// printf("stru b : %d\n", stru->b);
+printf("함수 호출 후\n");
+printf("stru a : %d\n", stru->a);
+printf("stru b : %d\n", stru->b);
 
 printf("strufoo9 마스킹 된 함수 호출 \n");
 if(strufoo9 == NULL)

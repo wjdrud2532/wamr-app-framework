@@ -20,10 +20,14 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fno-inline -fno-omit-frame-pointer 
 
 
 # # SDL2 헤더 파일 경로 추가
-# include_directories(/usr/local/include/SDL2)
+# include_directories(/usr/include/SDL2)
 
 # # # SDL2 라이브러리 경로 추가
 # link_directories(/usr/local/lib)
+
+# find_package(PkgConfig REQUIRED)
+# pkg_check_modules(SDL2 REQUIRED sdl2)
+# include_directories(${SDL2_INCLUDE_DIRS})
 
 # -I/usr/local/include/SDL2 -D_REENTRANT -L/usr/local/lib -lSDL2
 
